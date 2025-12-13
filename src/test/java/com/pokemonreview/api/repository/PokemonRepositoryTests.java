@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
+import java.util.Optional;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
@@ -60,6 +61,54 @@ public class PokemonRepositoryTests {
         Pokemon returnedPokemon = pokemonRepository.findById(pokemon.getId()).get();
 
         Assertions.assertThat(returnedPokemon).isNotNull();
+    }
+
+
+    @Test
+    public void PokemonRepository_FindByType_ReturnPokemonNotNull() {
+        Pokemon pokemon = Pokemon.builder()
+                .name("pikachu")
+                .type("electric").build();
+
+        pokemonRepository.save(pokemon);
+
+        Pokemon returnedPokemon = pokemonRepository.findByType(pokemon.getType()).get();
+
+        Assertions.assertThat(returnedPokemon).isNotNull();
+    }
+
+    @Test
+    public void PokemonRepository_UpdatePokemon_ReturnPokemonNotNull() {
+        Pokemon pokemon = Pokemon.builder()
+                .name("pikachu")
+                .type("electric").build();
+
+        pokemonRepository.save(pokemon);
+
+        Pokemon returnedPokemon = pokemonRepository.findById(pokemon.getId()).get();
+
+        returnedPokemon.setType("Electric");
+        returnedPokemon.setName("Raichu");
+
+        Pokemon updatedPokemon = pokemonRepository.save(returnedPokemon);
+
+        Assertions.assertThat(updatedPokemon.getName()).isNotNull();
+        Assertions.assertThat(updatedPokemon.getType()).isNotNull();
+    }
+
+    @Test
+    public void PokemonRepository_PokemonDelete_ReturnPokemonIsEmpty() {
+        Pokemon pokemon = Pokemon.builder()
+                .name("pikachu")
+                .type("electric").build();
+
+        pokemonRepository.save(pokemon);
+
+        pokemonRepository.deleteById(pokemon.getId());
+
+        Optional<Pokemon> returnedPokemon = pokemonRepository.findById(pokemon.getId());
+
+        Assertions.assertThat(returnedPokemon).isEmpty();
     }
 
 }
