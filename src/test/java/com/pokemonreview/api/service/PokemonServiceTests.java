@@ -15,6 +15,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,7 +30,7 @@ public class PokemonServiceTests {
     private PokemonServiceImpl pokemonService;
 
     @Test
-    public void PokemonService_Create_Pokemon_ReturnPokemonDto(){
+    public void PokemonService_Create_Pokemon_ReturnPokemonDto() {
         Pokemon pokemon = Pokemon.builder()
                 .name("pikachu")
                 .type("electric")
@@ -42,14 +45,56 @@ public class PokemonServiceTests {
     }
 
     @Test
-    public void PokemonService_GetAllPokemon_ReturnsResponseDto(){
+    public void PokemonService_GetAllPokemon_ReturnsResponseDto() {
 
         Page<Pokemon> pokemons = Mockito.mock(Page.class);
 
         when(pokemonRepository.findAll(Mockito.any(Pageable.class))).thenReturn(pokemons);
 
-        PokemonResponse savePokemon = pokemonService.getAllPokemon(1,10);
+        PokemonResponse savePokemon = pokemonService.getAllPokemon(1, 10);
 
         Assertions.assertThat(savePokemon).isNotNull();
-     }
+    }
+
+    @Test
+    public void PokemonService_GetPokemonById_ReturnsPokemonDto() {
+        Pokemon pokemon = Pokemon.builder()
+                .name("pikachu")
+                .type("electric").build();
+
+        when(pokemonRepository.findById(1)).thenReturn(Optional.ofNullable(pokemon));
+
+        PokemonDto savedPokemon = pokemonService.getPokemonById(1);
+
+        Assertions.assertThat(savedPokemon).isNotNull();
+    }
+
+    @Test
+    public void PokemonService_UpdatePokemon_ReturnsPokemonDto() {
+        Pokemon pokemon = Pokemon.builder()
+                .name("pikachu")
+                .type("electric").build();
+
+        PokemonDto pokemonDto = PokemonDto.builder().name("pikachu")
+                .type("electric").build();
+
+        when(pokemonRepository.findById(1)).thenReturn(Optional.ofNullable(pokemon));
+
+        when(pokemonRepository.save(Mockito.any(Pokemon.class))).thenReturn(pokemon);
+
+        PokemonDto savedPokemon = pokemonService.updatePokemon(pokemonDto, 1);
+
+        Assertions.assertThat(savedPokemon).isNotNull();
+    }
+
+    @Test
+    public void PokemonService_DeletePokemonById_ReturnsPokemonDto() {
+        Pokemon pokemon = Pokemon.builder()
+                .name("pikachu")
+                .type("electric").build();
+
+        when(pokemonRepository.findById(1)).thenReturn(Optional.ofNullable(pokemon));
+
+        assertAll(() -> pokemonService.deletePokemonId(1));
+    }
 }
